@@ -1,0 +1,99 @@
+Sub GetStocksInfo():
+
+Dim i As Long, j As Long, r As Long
+Dim stockYear
+Dim lRow As Long
+Dim ticker As String
+Dim openingPrice As Double
+Dim closingPrice As Double
+Dim dayOpeningPrice As Double
+Dim yearlyChange As Double
+Dim yearlyPercentage As Double
+Dim totalStockVolume As Double
+totalStockVolume = 0
+
+Dim stockGreatestIncrease As Double
+Dim SGI_Ticker As String
+
+Dim stockGreatestDecrease As Double
+Dim SGD_Ticker As String
+
+Dim greatestTotalVolume As Double
+Dim GTV_Ticker As String
+
+stockYear = Array("2018", "2019", "2020")
+For i = 0 To 2
+    Worksheets(stockYear(i)).Activate
+    r = 1
+    Cells(r, 9).Value = "Ticker"
+    Cells(r, 10).Value = "Yearly Change"
+    Cells(r, 11).Value = "Percent Change"
+    Cells(r, 12).Value = "Total Stock Volume"
+    r = 2
+    lRow = Cells(Rows.Count, 1).End(xlUp).Row
+    
+    
+    stockGreatestIncrease = 0
+    SGI_Ticker = ""
+    stockGreatestDecrease = 0
+    SGD_Ticker = ""
+    greatestTotalVolume = 0
+    GTV_Ticker = ""
+    ticker = Cells(2, 1).Value
+    openingPrice = Cells(2, 3).Value
+    
+    For j = 2 To lRow
+        If ticker <> Cells(j, 1).Value Then
+            Cells(r, 9).Value = ticker
+            Cells(r, 10).Value = closingPrice - openingPrice
+            Cells(r, 11).Value = ((closingPrice - openingPrice) / openingPrice)
+            Cells(r, 12).Value = totalStockVolume
+
+            If stockGreatestIncrease > (1 - (closingPrice / openingPrice)) Then
+                stockGreatestIncrease = (1 - (closingPrice / openingPrice))
+                SGI_Ticker = ticker
+            End If
+            If stockGreatestDecrease < (1 - (closingPrice / openingPrice)) Then
+                stockGreatestDecrease = (1 - (closingPrice / openingPrice))
+                SGD_Ticker = ticker
+            End If
+
+            r = r + 1
+
+            totalStockVolume = 0
+            openingPrice = Cells(j, 3).Value
+        End If
+
+        ticker = Cells(j, 1).Value
+        totalStockVolume = totalStockVolume + Cells(j, 7).Value
+        dayOpeningPrice = Cells(j, 3).Value
+        closingPrice = Cells(j, 6).Value
+
+        If greatestTotalVolume < totalStockVolume Then
+            greatestTotalVolume = totalStockVolume
+            GTV_Ticker = ticker
+        End If
+
+    Next j
+    Cells(1, 16).Value = "Ticker"
+    Cells(1, 17).Value = "Value"
+    
+    Cells(2, 15).Value = "Greatest % Increase"
+    Cells(2, 16).Value = SGI_Ticker
+    Cells(2, 17).Value = stockGreatestIncrease
+        
+    Cells(3, 15).Value = "Greatest % Decrease"
+    Cells(3, 16).Value = SGD_Ticker
+    Cells(3, 17).Value = stockGreatestDecrease
+        
+    Cells(4, 15).Value = "Greatest Total Volume"
+    Cells(4, 16).Value = GTV_Ticker
+    Cells(4, 17).Value = greatestTotalVolume
+
+
+Next i
+
+MsgBox ("Done!")
+
+End Sub
+
